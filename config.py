@@ -174,10 +174,12 @@ class ConfigParser:
             parsed_config['data_stdev'] = float(config['data_stdev'])
 
             # validate 'model_fp'
+            """
             if 'model_fp' not in config:
                 raise ValueError("'model_fp' missing from config.")
             if not os.path.isfile(config['model_fp']):
                 raise FileNotFoundError("'{0}' is not a valid file path.".format(config['model_fp']))
             parsed_config['model_fp'] = config['model_fp']
+            """
 
         return parsed_config

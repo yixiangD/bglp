@@ -78,7 +78,7 @@ for ridx in range(config['nb_runs']):
     callbacks = []
 
     if config['training_mode'] == 'early_stopping':
-        callbacks.append(ModelCheckpoint(filepath='{0}/{1}_{2}.pkl'.format(config['output'], str(model), ridx+1),
+        callbacks.append(ModelCheckpoint(filepath='{0}/{1}_{2}'.format(config['output'], str(model), ridx+1),
                                          save_best_only=True, save_weights_only=True))
         callbacks.append(EarlyStopping(patience=config['patience']))
 
@@ -96,11 +96,16 @@ for ridx in range(config['nb_runs']):
         print("Saving model to '{0}/{1}_{2}.pkl'".format(config['output'], str(model), ridx+1))
         m.save_weights('{0}/{1}_{2}.pkl'.format(config['output'], str(model), ridx+1))
     elif config['training_mode'] == 'early_stopping':
-        print("Loading model weights: '{0}/{1}_{2}.pkl'".format(config['output'], str(model), ridx+1))
-        m.load_weights('{0}/{1}_{2}.pkl'.format(config['output'], str(model), ridx+1))
+        print("Loading model weights: '{0}/{1}_{2}'".format(config['output'], str(model), ridx+1))
+        m.load_weights('{0}/{1}_{2}'.format(config['output'], str(model), ridx+1))
 
     train_loss = X_train_stdev * m.evaluate(X_train, Y_train)[1]
     val_loss = X_train_stdev * m.evaluate(X_val, Y_val)[1]
 
     print("training RMSE = {0}".format(train_loss))
     print("validation RMSE = {0}".format(val_loss))
+
+# evaluate model
+subjects = [540, 544, 552, 567, 584, 596]
+
+res = {}
