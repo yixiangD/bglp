@@ -1,5 +1,6 @@
 from keras.models import Model
 from keras.layers import Dense, LSTM, GRU, Lambda, dot, concatenate, Activation, Input
+from keras_pos_embd import TrigPosEmbedding
 
 class LinearModel:
     def __init__(self, input_shape=(6,), nb_output_units=1):
@@ -133,6 +134,35 @@ class LSTMAttentionModel:
         context_vector = dot([x, attention_weights], [1, 1])
         pre_activation = concatenate([context_vector, hidden_state])
         x = Dense(self.nb_attention_units, use_bias=False, activation='tanh')(pre_activation)
+
+        # output
+        x = Dense(1, activation=None)(x)
+
+        return Model(inputs=[i], outputs=[x])
+
+class Seq2seqModel:
+    def __init__(self, input_shape=(6, 1), kernel_size=4, n_block=4, nb_hidden_units=64, nb_layers=2):
+        self.input_shape = input_shape
+        self.kernel_size = kernel_size
+        self.n_block = n_block
+        self.nb_hidden_units = nb_hidden_units
+        self.nb_layers = nb_layers
+
+    def __repr__(self):
+        return 'Seq2seq_{0}_seq2seq_units_{1}_layers={2}_fnn_units_{3}_layers'.format(self.kernel_size, self.n_block, self.nb_hidden_units, self.nb_layers)
+
+    def build(self):
+        # input
+        i = Input(shape=self.input_shape)
+
+        # Seq2seq block
+        # position embedding
+        embed = TrigPosEmbedding(input_shape=self.input_shape,
+                                 output_dim=self.input_shape[0],
+                                 mode=TrigPosEmbedding.MODE_EXPAND)
+        x = embed(i)
+
+        # FNN block
 
         # output
         x = Dense(1, activation=None)(x)

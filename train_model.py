@@ -62,6 +62,8 @@ elif config['model'] == 'lstm_attention':
     model = models.LSTMAttentionModel(input_shape=(config['history_length'], 1), nb_output_units=1,
                              nb_hidden_units=config['nb_hidden_units'], dropout=config['dropout'],
                              recurrent_dropout=config['recurrent_dropout'], nb_attention_units=config['nb_attention_units'])
+elif config["model"] == "seq2seq":
+    model = models.Seq2seqModel(input_shape=(config['history_length'], 1), kernel_size=4, n_block=4, nb_hidden_units=64, nb_layers=2)
 
 # model training
 loss_function = RMSE

@@ -28,7 +28,7 @@ class ConfigParser:
 
         # model config validation
         # validate 'model'
-        models = ['linear', 'mlp', 'lstm', 'gru', 'lstm_attention']
+        models = ['linear', 'mlp', 'lstm', 'gru', 'lstm_attention', "seq2seq"]
 
         if 'model' not in config:
             raise ValueError("'model' missing from config.")
@@ -73,6 +73,10 @@ class ConfigParser:
                 raise TypeError("'dropout' must be a float.")
             if 'recurrent_dropout' in config:
                 parsed_config['recurrent_dropout'] = float(config['recurrent_dropout'])
+
+        if config["model"] == "seq2seq":
+            parsed_config["kernel_size"] = int(config["kernel_size"])
+            parsed_config["n_block"] = int(config["n_block"])
 
         # validate 'output'
         if 'output_dir' not in config:
