@@ -1,5 +1,6 @@
+import tensorflow as tf
 from keras.models import Model
-from keras.layers import Dense, LSTM, GRU, Lambda, dot, concatenate, Activation, Input
+from keras.layers import Dense, LSTM, GRU, Lambda, dot, concatenate, Activation, Input, Conv1D, Multiply
 from keras_pos_embd import TrigPosEmbedding
 
 class LinearModel:
@@ -155,14 +156,19 @@ class Seq2seqModel:
         # input
         i = Input(shape=self.input_shape)
 
-        # Seq2seq block
         # position embedding
-        embed = TrigPosEmbedding(input_shape=self.input_shape,
-                                 output_dim=self.input_shape[0],
-                                 mode=TrigPosEmbedding.MODE_EXPAND)
+        embed = TrigPosEmbedding(mode=TrigPosEmbedding.MODE_CONCAT,output_dim=2)
         x = embed(i)
+        x = Dense(1, activation=None)(x)
+        # Seq2seq block
+        for _ in range(self.n_block):
+            A = Conv1D(self.input_shape[1], self.kernel_size, padding="same", activation=None, input_shape=self.input_shape[1:])(x)
+            B = Conv1D(self.input_shape[1], self.kernel_size, padding="same", activation="sigmoid", input_shape=self.input_shape[1:])(x)
+            x = Multiply()([A, B]) + x
 
         # FNN block
+        for _ in range(self.nb_layers):
+            x = Dense(self.nb_hidden_units, activation="relu")(x)
 
         # output
         x = Dense(1, activation=None)(x)
