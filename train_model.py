@@ -2,6 +2,7 @@ import json
 import sys
 import os
 import numpy as np
+import tensorflow as tf
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 
 import data
@@ -66,14 +67,15 @@ elif config["model"] == "seq2seq":
     model = models.Seq2seqModel(input_shape=(config['history_length'], 1), kernel_size=4, n_block=4, nb_hidden_units=64, nb_layers=2)
 
 # model training
-loss_function = RMSE
+loss_function = tf.keras.losses.MeanAbsoluteError()
+#loss_function = RMSE
 
 for ridx in range(config['nb_runs']):
     print("Run #{0}".format(ridx+1))
 
     # build & compile model
     m = model.build()
-    m.compile(loss=RMSE,
+    m.compile(loss=loss_function,
                   optimizer='adam',
                   metrics=[RMSE])
 
