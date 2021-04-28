@@ -57,8 +57,10 @@ loss_function = RMSE
 model.compile(loss=RMSE,
           optimizer='adam',
           metrics=[RMSE])
-
-index=2
+try:
+    index=int(sys.argv[2])
+except:
+    index = 1
 model.load_weights('{0}/{1}_{2}'.format(config['output'], model_str, index))
 
 # evaluate model
@@ -71,6 +73,7 @@ for subject_index in subjects:
                                                      history_length=config['history_length'],
                                                      prediction_horizon=config['prediction_horizon'],
                                                      data_mean=config['data_mean'], data_stdev=config['data_stdev'])
+    out = np.array(Y_test * config['data_stdev'] + config['data_mean'])
 
     if config['model'] in ['gru', 'lstm', 'lstm_attention']:
         X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
@@ -78,7 +81,9 @@ for subject_index in subjects:
     # evaluate model
     rmse = config['data_stdev']*model.evaluate(X_test, Y_test)[1]
 
-    preds = [(p[0] * config['data_stdev']) + config['data_mean'] for p in model.predict(X_test)]
+    preds = np.array([(p[0] * config['data_stdev']) + config['data_mean'] for p in model.predict(X_test)])
+    out = np.hstack((out[:, None], preds[:, None]))
+    np.savetxt(f"{config['output']}/{subject_index}.txt", out, fmt="%.4f %.4f")
     mae = MAE(np.array([y*config['data_stdev'] + config['data_mean'] for y in Y_test]), np.array(preds))
 
     res[subject_index] = {'MAE':mae, 'RMSE':rmse}
