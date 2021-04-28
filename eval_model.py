@@ -46,6 +46,8 @@ elif config['model'] == 'lstm_attention':
                                       nb_hidden_units=config['nb_hidden_units'], dropout=config['dropout'],
                                       recurrent_dropout=config['recurrent_dropout'],
                                       nb_attention_units=config['nb_attention_units'])
+elif config["model"] == "seq2seq":
+    model = models.Seq2seqModel(input_shape=(config['history_length'], 1), kernel_size=4, n_block=4, nb_hidden_units=64, nb_layers=2)
 
 # build & compile model
 model_str = str(model)
@@ -56,10 +58,8 @@ model.compile(loss=RMSE,
           optimizer='adam',
           metrics=[RMSE])
 
-#print("Loading model weights: '{0}'".format(config['model_fp']))
-#model.load_weights("output/checkpoint")
-model.load_weights('{0}/{1}_1'.format(config['output'], model_str))
-#model.load_weights(config['model_fp'])
+index=2
+model.load_weights('{0}/{1}_{2}'.format(config['output'], model_str, index))
 
 # evaluate model
 subjects = [540, 544, 552, 567, 584, 596]
@@ -85,15 +85,15 @@ for subject_index in subjects:
 
     # write predictions to file
     with open("{0}/{1}_{2}_{3}".format(config['output'], model_str, subject_index, config['prediction_horizon'] * 5), 'w') as f:
-        [f.write("{0} {1}\n".format(t, round(preds[idx], 2))) for idx, t in enumerate(test_times)]
+        [f.write("{0} {1}\n".format(t, np.round(preds[idx], 2))) for idx, t in enumerate(test_times)]
 
 print("{0}\nPerformance Summary\n{1}".format("="*50, "="*50))
 rmse, mae = 0, 0
 for subject_index in res:
-    print("{0}\nRMSE = {1}\nMAE = {2}\n".format(subject_index, round(res[subject_index]['RMSE'], 3),
-                                                round(res[subject_index]['MAE'], 3)))
-    rmse += round(res[subject_index]['RMSE'], 3)
-    mae += round(res[subject_index]['MAE'], 3)
+    print("{0}\nRMSE = {1}\nMAE = {2}\n".format(subject_index, np.round(res[subject_index]['RMSE'], 3),
+                                                np.round(res[subject_index]['MAE'], 3)))
+    rmse += np.round(res[subject_index]['RMSE'], 3)
+    mae += np.round(res[subject_index]['MAE'], 3)
 rmse /= 6
 mae /= 6
 print(f"Average RMSE: {rmse}, average MAE: {mae}")
