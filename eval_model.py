@@ -102,4 +102,5 @@ for subject_index in res:
 rmse /= 6
 mae /= 6
 print(f"Average RMSE: {rmse}, average MAE: {mae}")
-
+from post import show_metrics
+show_metrics()
